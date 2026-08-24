@@ -1,0 +1,56 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function validPriority(priority) {
+      return priority in ['low', 'medium', 'high'];
+    }
+
+    function validTask(data, userId) {
+      return data.keys().hasOnly([
+          'userId',
+          'title',
+          'description',
+          'completed',
+          'priority',
+          'dueDate',
+          'order',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.userId == userId
+        && data.title is string
+        && data.title.size() > 0
+        && data.title.size() <= 120
+        && data.description is string
+        && data.description.size() <= 500
+        && data.completed is bool
+        && validPriority(data.priority)
+        && (data.dueDate == null || data.dueDate is string)
+        && data.order is number
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    match /users/{userId}/tasks/{taskId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && validTask(request.resource.data, userId);
+      allow update: if isOwner(userId)
+        && resource.data.userId == userId
+        && validTask(request.resource.data, userId);
+      allow delete: if isOwner(userId) && resource.data.userId == userId;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
