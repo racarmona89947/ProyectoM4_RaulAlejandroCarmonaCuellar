@@ -1,7 +1,50 @@
 import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses'
-import type { IncomingMessage, ServerResponse } from 'node:http'
-import type { ApiErrorResponse, ApiSuccessResponse, SendTaskSummaryPayload } from '../src/types/email'
-import { isValidEmail, isTaskPriority } from '../src/utils/validators'
+
+type TaskPriority = 'low' | 'medium' | 'high'
+
+interface EmailTaskSummaryItem {
+  title: string
+  description: string
+  completed: boolean
+  priority: TaskPriority
+  dueDate: string | null
+}
+
+interface SendTaskSummaryPayload {
+  recipientEmail: string
+  tasks: EmailTaskSummaryItem[]
+}
+
+interface ApiSuccessResponse {
+  ok: true
+  message: string
+}
+
+interface ApiErrorResponse {
+  ok: false
+  error: string
+}
+
+interface VercelRequest {
+  method?: string
+  url?: string
+  headers: Record<string, string | string[] | undefined>
+  body?: unknown
+}
+
+interface VercelResponse {
+  statusCode: number
+  setHeader(name: string, value: string): void
+  end(body?: string): void
+}
+
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+}
+
+function isTaskPriority(value: unknown): value is TaskPriority {
+  return value === 'low' || value === 'medium' || value === 'high'
+}
 
 const MAX_TASKS_PER_EMAIL = 100
 const DEFAULT_FROM_NAME = 'Gestor Estrategico de Tareas'
@@ -41,7 +84,7 @@ function readServerEnv(): { env: ServerEnv | null; missing: ServerEnvKey[] } {
   const env = {} as ServerEnv
 
   REQUIRED_ENV_KEYS.forEach((key) => {
-    const value = process.env[key]
+    const value = (globalThis as typeof globalThis & { process?: { env: Record<string, string | undefined> } }).process?.env[key]
 
     if (value === undefined || value.trim().length === 0) {
       missing.push(key)
@@ -338,8 +381,6 @@ export async function handleRequest(request: Request): Promise<Response> {
   }
 }
 
-type VercelRequest = IncomingMessage & { body?: unknown }
-
 function toWebRequest(request: VercelRequest): Request {
   const headers = new Headers()
 
@@ -362,7 +403,7 @@ function toWebRequest(request: VercelRequest): Request {
   })
 }
 
-export default async function handler(request: VercelRequest, response: ServerResponse): Promise<void> {
+export default async function handler(request: VercelRequest, response: VercelResponse): Promise<void> {
   if (request.method !== 'POST') {
     response.statusCode = 405
     response.setHeader('Allow', 'POST')
