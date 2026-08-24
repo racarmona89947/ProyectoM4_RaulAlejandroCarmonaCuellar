@@ -222,7 +222,7 @@ Objetivo de esta secuencia:
 
 ### GIF principal de funcionamiento
 
-Agregar 1 GIF mostrando el flujo completo:
+Flujo esperado del GIF:
 
 1. Login.
 2. Crear tarea.
@@ -231,22 +231,35 @@ Agregar 1 GIF mostrando el flujo completo:
 5. Visualizar toast de exito.
 6. Abrir correo recibido.
 
-Cuando lo tengas, guardalo en el repo y reemplaza esta linea:
+Pendiente de reemplazar cuando se exporte el GIF final:
 
 ![Demo funcional del proyecto](docs/demo-funcionamiento.gif)
 
-### Capturas recomendadas
+### Capturas del proyecto
 
-Si quieres completar rubrica visual, agrega estas imagenes en `docs/`:
+#### 1) Pantalla de inicio de sesion
+![Login](src/assets/01-login.png)
 
-- `docs/01-login.png` (pantalla login)
-- `docs/02-register.png` (pantalla registro)
-- `docs/03-dashboard-tareas.png` (tablero con stats)
-- `docs/04-crear-editar.png` (crear/editar tarea)
-- `docs/05-filtros-orden.png` (filtros y orden)
-- `docs/06-toast-feedback.png` (toast exito/error)
-- `docs/07-email-recibido.png` (correo recibido en Gmail)
-- `docs/08-spam-folder.png` (correo en Spam/No deseado)
+#### 2) Pantalla de registro
+![Registro](src/assets/02-register.png)
+
+#### 3) Tablero principal con estadisticas y tareas
+![Dashboard de tareas](src/assets/03-dashboard-tareas.png)
+
+#### 4) Modal de creacion de tarea
+![Crear tarea](src/assets/04-crear.png)
+
+#### 5) Filtros, orden y edicion
+![Filtros y edicion](src/assets/05-filtros-orden-y-editar.png)
+
+#### 6) Toast de feedback al enviar resumen
+![Toast de envio](src/assets/06-toast-feedback.png)
+
+#### 7) Correo recibido con plantilla HTML
+![Correo recibido](src/assets/07-email-recibido.png)
+
+#### 8) Ejemplo de correo llegando a Spam
+![Correo en spam](src/assets/08-spam-folder.png)
 
 ---
 
@@ -273,75 +286,75 @@ La IA se uso como apoyo tecnico para:
 
 Las decisiones finales de implementacion y entrega fueron del estudiante.
 
-### Ejemplos de prompts y posibles respuestas
+### Prompts enviados y respuestas dadas por IA (agente/chat)
 
-1) Prompt posible:
+1) Prompt enviado:
 
 ```text
 Tengo una SPA React con Firebase. Como separo capas para que auth, tareas y servicios queden mantenibles?
 ```
 
-Posible respuesta de IA:
+Respuesta dada por IA:
 
 ```text
 Separa por features y responsabilidades: features/auth, features/tasks, hooks para orquestacion de estado, services para acceso a Firebase/API, y types/utils compartidos. Usa rutas protegidas y provider de auth en el nivel superior.
 ```
 
-2) Prompt posible:
+2) Prompt enviado:
 
 ```text
 Quiero guardar tareas por usuario en Firestore y evitar que un usuario vea las de otro. Que modelo y reglas recomiendas?
 ```
 
-Posible respuesta de IA:
+Respuesta dada por IA:
 
 ```text
 Usa users/{userId}/tasks/{taskId}. En reglas, permite lectura/escritura solo cuando request.auth.uid == userId. Este modelo simplifica queries por usuario y reduce riesgo de acceso cruzado.
 ```
 
-3) Prompt posible:
+3) Prompt enviado:
 
 ```text
 Ayudame a implementar un endpoint en Vercel para enviar resumen de tareas con AWS SES, validando payload y errores.
 ```
 
-Posible respuesta de IA:
+Respuesta dada por IA:
 
 ```text
 Crea /api/send-task-summary, valida metodo POST, email y lista de tareas, arma cuerpo texto+HTML, envia con SESClient y devuelve errores controlados (400/405/500/502) sin exponer datos sensibles.
 ```
 
-4) Prompt posible:
+4) Prompt enviado:
 
 ```text
 Quiero mejorar UX: el mensaje de exito/error de enviar resumen no quiero verlo inline, sino como toast.
 ```
 
-Posible respuesta de IA:
+Respuesta dada por IA:
 
 ```text
 Implementa un componente ToastMessage reutilizable con variantes success/error/info, autocierre por timeout, cierre manual y aria-live para accesibilidad.
 ```
 
-5) Prompt posible:
+5) Prompt enviado:
 
 ```text
 Que pruebas minimas debo tener para demostrar calidad en este proyecto?
 ```
 
-Posible respuesta de IA:
+Respuesta dada por IA:
 
 ```text
 Incluye pruebas de utilidades, componentes clave, hook principal, guards de rutas, servicio HTTP y endpoint API. Agrega typecheck y build en checklist final para validar calidad tecnica.
 ```
 
-6) Prompt posible:
+6) Prompt enviado:
 
 ```text
 Necesito que el README quede listo para rubrica: estructura, flujo, pruebas, deploy y evidencia visual.
 ```
 
-Posible respuesta de IA:
+Respuesta dada por IA:
 
 ```text
 Ordena enlaces arriba, explica flujo funcional end-to-end, documenta setup/env/scripts/tests, agrega notas de SES y spam, y reserva seccion de GIF/capturas con nombres de archivo consistentes.
