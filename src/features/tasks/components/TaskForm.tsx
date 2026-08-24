@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
-import { InlineMessage } from '../../../components/feedback/InlineMessage'
+import { ToastMessage } from '../../../components/feedback/ToastMessage'
 import { Button } from '../../../components/ui/Button'
 import type { TaskDraft, TaskFieldErrors, TaskPriority } from '../../../types/task'
 import { getTodayDateInputValue, normalizeOptionalDate, validateTaskDraft } from '../../../utils/validators'
@@ -21,6 +21,25 @@ interface TaskFormProps {
 export function TaskForm({ error, isSubmitting, onSubmit }: TaskFormProps) {
   const [draft, setDraft] = useState<TaskDraft>(initialDraft)
   const [fieldErrors, setFieldErrors] = useState<TaskFieldErrors>({})
+  const [showErrorToast, setShowErrorToast] = useState(false)
+
+  useEffect(() => {
+    setShowErrorToast(Boolean(error))
+  }, [error])
+
+  useEffect(() => {
+    if (!showErrorToast) {
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setShowErrorToast(false)
+    }, 4200)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [showErrorToast])
 
   function resetForm(): void {
     setDraft({ ...initialDraft })
@@ -142,11 +161,15 @@ export function TaskForm({ error, isSubmitting, onSubmit }: TaskFormProps) {
         </div>
       </div>
 
-      {error ? <InlineMessage tone="error">{error}</InlineMessage> : null}
-
       <Button isLoading={isSubmitting} loadingLabel="Creando..." type="submit">
         Crear tarea
       </Button>
+
+      {error && showErrorToast ? (
+        <ToastMessage tone="error" onClose={() => setShowErrorToast(false)}>
+          {error}
+        </ToastMessage>
+      ) : null}
     </form>
   )
 }

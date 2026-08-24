@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { ChangeEvent, FormEvent, ReactNode } from 'react'
-import { InlineMessage } from '../../../components/feedback/InlineMessage'
+import { ToastMessage } from '../../../components/feedback/ToastMessage'
 import { Button } from '../../../components/ui/Button'
 import type { AuthCredentials, AuthFieldErrors } from '../../../types/auth'
 import { validateAuthCredentials } from '../../../utils/validators'
@@ -33,8 +33,27 @@ export function AuthForm({
 }: AuthFormProps) {
   const [credentials, setCredentials] = useState<AuthCredentials>(initialCredentials)
   const [fieldErrors, setFieldErrors] = useState<AuthFieldErrors>({})
+  const [showErrorToast, setShowErrorToast] = useState(false)
 
   const passwordAutocomplete = mode === 'register' ? 'new-password' : 'current-password'
+
+  useEffect(() => {
+    setShowErrorToast(Boolean(error))
+  }, [error])
+
+  useEffect(() => {
+    if (!showErrorToast) {
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setShowErrorToast(false)
+    }, 4200)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [showErrorToast])
 
   function updateField(field: keyof AuthCredentials, value: string): void {
     setCredentials((currentCredentials) => ({
@@ -122,8 +141,6 @@ export function AuthForm({
             ) : null}
           </div>
 
-          {error ? <InlineMessage tone="error">{error}</InlineMessage> : null}
-
           <Button isLoading={isSubmitting} loadingLabel="Validando..." type="submit">
             {submitLabel}
           </Button>
@@ -156,6 +173,11 @@ export function AuthForm({
         </form>
         <div className="auth-footer">{footer}</div>
       </div>
+      {error && showErrorToast ? (
+        <ToastMessage tone="error" onClose={() => setShowErrorToast(false)}>
+          {error}
+        </ToastMessage>
+      ) : null}
     </section>
   )
 }

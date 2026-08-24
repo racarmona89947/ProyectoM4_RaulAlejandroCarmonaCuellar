@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import {
   closestCenter,
   DndContext,
@@ -15,8 +16,8 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { InlineMessage } from '../../../components/feedback/InlineMessage'
 import { LoadingView } from '../../../components/feedback/LoadingView'
+import { ToastMessage } from '../../../components/feedback/ToastMessage'
 import type { Task, TaskDraft } from '../../../types/task'
 import { TaskItem } from './TaskItem'
 
@@ -114,6 +115,26 @@ export function TaskList({
   onUpdate,
   tasks,
 }: TaskListProps) {
+  const [showErrorToast, setShowErrorToast] = useState(false)
+
+  useEffect(() => {
+    setShowErrorToast(Boolean(error))
+  }, [error])
+
+  useEffect(() => {
+    if (!showErrorToast) {
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setShowErrorToast(false)
+    }, 4200)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [showErrorToast])
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -128,9 +149,13 @@ export function TaskList({
   if (tasks.length === 0) {
     return (
       <div className="empty-state">
-        {error ? <InlineMessage tone="error">{error}</InlineMessage> : null}
         <h2>No hay tareas para esta vista</h2>
         <p>Crea una tarea o cambia el filtro para ver otros resultados.</p>
+        {error && showErrorToast ? (
+          <ToastMessage tone="error" onClose={() => setShowErrorToast(false)}>
+            {error}
+          </ToastMessage>
+        ) : null}
       </div>
     )
   }
@@ -174,7 +199,6 @@ export function TaskList({
 
   return (
     <section className="task-list-section" aria-label="Listado de tareas">
-      {error ? <InlineMessage tone="error">{error}</InlineMessage> : null}
       {canReorder && tasks.length > 1 ? (
         <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd} sensors={sensors}>
           <SortableContext items={tasks.map((task) => task.id)} strategy={verticalListSortingStrategy}>
@@ -197,6 +221,11 @@ export function TaskList({
       ) : (
         listContent
       )}
+      {error && showErrorToast ? (
+        <ToastMessage tone="error" onClose={() => setShowErrorToast(false)}>
+          {error}
+        </ToastMessage>
+      ) : null}
     </section>
   )
 }
