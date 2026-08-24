@@ -64,7 +64,7 @@ Nota importante sobre entregabilidad:
 Se dejo un correo de Gmail de pruebas para evaluaciones funcionales:
 
 - Usuario: proyectoshenrypruebas@gmail.com
-- La contrasena se entrega por un canal privado y no se publica en el repositorio.
+- contrasena: ProyectosHenry2026*
 
 Uso recomendado:
 
