@@ -363,6 +363,14 @@ function toWebRequest(request: VercelRequest): Request {
 }
 
 export default async function handler(request: VercelRequest, response: ServerResponse): Promise<void> {
+  if (request.method !== 'POST') {
+    response.statusCode = 405
+    response.setHeader('Allow', 'POST')
+    response.setHeader('Content-Type', 'application/json; charset=utf-8')
+    response.end(JSON.stringify({ ok: false, error: 'Metodo no permitido.' }))
+    return
+  }
+
   const webResponse = await handleRequest(toWebRequest(request))
 
   response.statusCode = webResponse.status
