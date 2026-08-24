@@ -30,4 +30,5 @@ coverage
 .env.*
 !.env.example
 
-.vercel
+# Private course material
+DOCUMENTACION_PRIVADA/
