@@ -17,8 +17,11 @@ type ServerEnvKey = (typeof REQUIRED_ENV_KEYS)[number]
 type ServerEnv = Record<ServerEnvKey, string>
 
 function jsonResponse(body: ApiErrorResponse | ApiSuccessResponse, status: number, headers?: HeadersInit): Response {
-  return Response.json(body, {
-    headers,
+  const responseHeaders = new Headers(headers)
+  responseHeaders.set('Content-Type', 'application/json; charset=utf-8')
+
+  return new Response(JSON.stringify(body), {
+    headers: responseHeaders,
     status,
   })
 }
