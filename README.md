@@ -1,24 +1,91 @@
 # Gestor Estrategico de Tareas - Proyecto Integrador M4
 
+Proyecto Integrador del Modulo 4  
 Autor: Raul Alejandro Carmona Cuellar
 
-SPA de gestion de tareas para el Proyecto Integrador del Modulo 4. Implementa autenticacion, rutas protegidas, CRUD persistente por usuario en Cloud Firestore, resumen por email mediante AWS SES y Vercel Functions, testing con Vitest + React Testing Library y extras de filtros, prioridad, vencimiento y drag & drop.
+> SPA responsive para gestion de tareas con autenticacion, CRUD en tiempo real con Firebase, y envio de resumen por email usando Vercel Functions + AWS SES.
 
-El trabajo fue realizado por Raul Alejandro Carmona Cuellar. La IA se utilizo como apoyo tecnico y de revision, no como autora del proyecto.
+URL en produccion: pendiente de agregar tras deploy final en Vercel.
 
-## Stack
+Repositorio: pendiente de agregar URL del repo en GitHub.
 
-- React + TypeScript + Vite.
+API usada (auth + database): https://firebase.google.com/
+
+Servicio de email transaccional: https://aws.amazon.com/ses/
+
+---
+
+## Que hace el proyecto
+
+Gestor Estrategico de Tareas permite que cada usuario inicie sesion, administre sus tareas y envie por email un resumen visual de su tablero.
+
+Incluye:
+
+- Registro, login, logout y rutas protegidas.
+- CRUD completo de tareas por usuario.
+- Filtros por estado: todas, pendientes y completadas.
+- Priorizacion de tareas: baja, media y alta.
+- Fecha de vencimiento y deteccion de vencidas.
+- Orden manual con drag and drop y orden alternativo por criterios.
+- Envio de resumen por email desde backend serverless.
+- Feedback visual por toast para respuestas de acciones y errores.
+
+---
+
+## Funcionamiento
+
+### Flujo general
+
+1. El usuario se registra o inicia sesion.
+2. La aplicacion protege las rutas privadas y carga solo los datos del usuario autenticado.
+3. Las tareas se crean/actualizan/eliminan en Cloud Firestore bajo la estructura `users/{userId}/tasks/{taskId}`.
+4. El frontend sincroniza estado y UI con el hook de tareas (`useTasks`).
+5. Al presionar Enviar resumen por email, el frontend manda `recipientEmail + tasks` a `/api/send-task-summary`.
+6. La Vercel Function valida payload y variables, arma resumen en texto + HTML y usa AWS SES para enviar.
+7. El usuario recibe feedback en toast (exito o error).
+
+### Flujo del resumen por email
+
+1. Boton Enviar resumen por email en la vista de tareas.
+2. Request `POST` a `/api/send-task-summary`.
+3. Validacion de metodo, email destino, cantidad y estructura de tareas.
+4. Render del correo en formato HTML mejorado + respaldo en texto plano.
+5. Entrega por AWS SES con remitente visible: Gestor Estrategico de Tareas.
+
+Nota importante sobre entregabilidad:
+
+- En Gmail, el resumen puede llegar inicialmente a Spam/Correo no deseado.
+- Esto es normal en ambientes de prueba con SES (especialmente en sandbox o sin dominio corporativo verificado).
+
+---
+
+## Correo de prueba para rubrica
+
+Se dejo un correo de Gmail de pruebas para evaluaciones funcionales:
+
+- Usuario: proyectoshenrypruebas@gmail.com
+- Contrasena: ProyectosHenry2026*
+
+Uso recomendado:
+
+- Solo para pruebas del proyecto y verificacion de flujo de autenticacion/email.
+- Revisar bandeja Spam/No deseado despues de enviar resumen.
+
+---
+
+## Stack tecnico
+
+- React 19 + TypeScript + Vite.
 - React Router.
 - Firebase Authentication + Cloud Firestore.
-- Vercel Functions en `/api`.
+- Vercel Functions.
 - AWS SES con AWS SDK v3.
 - Vitest + React Testing Library.
-- dnd-kit para reordenamiento.
+- dnd-kit para drag and drop.
+
+---
 
 ## Arquitectura
-
-La aplicacion separa responsabilidades por capas:
 
 ```text
 React UI -> Hooks -> Services -> Firebase Auth / Firestore
@@ -30,42 +97,40 @@ Estructura principal:
 ```text
 src/
   components/       UI reusable, feedback y layout
-  config/           configuracion de Firebase desde env
-  features/auth/    provider y formulario de autenticacion
-  features/tasks/   formulario, lista, item, filtros y drag & drop
-  hooks/            conexion React con Firestore
-  pages/            vistas login, register, tasks y 404
-  routes/           rutas publicas/protegidas
-  services/         Firebase, Auth, Firestore y email API
+  config/           configuracion Firebase desde env
+  features/auth/    auth provider y formulario
+  features/tasks/   formulario, lista, item, filtros y DnD
+  hooks/            integracion React + Firestore
+  pages/            login, register, tasks y 404
+  routes/           guards public/private
+  services/         auth, firestore y email API
   types/            contratos compartidos
   utils/            validaciones, filtros y ordenamiento
-api/                Vercel Functions
-docs/               matriz de rubrica
-tests/              unit/component tests
+api/                Vercel Function send-task-summary
+tests/              pruebas unitarias y de componentes
 ```
 
-## Instalacion
+---
+
+## Instalacion y ejecucion local
+
+### Requisitos
+
+- Node.js 18 o superior.
+- npm.
+- Cuenta de Firebase.
+- Cuenta AWS SES.
+- Vercel CLI (opcional, recomendado para flujo serverless local).
+
+### Instalar dependencias
 
 ```bash
 npm install
-npm run dev
 ```
 
-Scripts utiles:
+### Variables de entorno
 
-```bash
-npm run typecheck
-npm run test
-npm run build
-npm run preview
-npm run audit
-```
-
-En Windows PowerShell puede ser necesario usar `npm.cmd` si la politica local bloquea `npm.ps1`.
-
-## Variables de entorno
-
-Crear `.env` local y mantener `.env.example` sin secretos:
+Crear `.env` local basandose en `.env.example`:
 
 ```env
 VITE_FIREBASE_API_KEY=
@@ -81,108 +146,203 @@ AWS_SECRET_ACCESS_KEY=
 AWS_SES_FROM_EMAIL=
 ```
 
-Las variables `VITE_FIREBASE_*` son usadas por el frontend. Las variables `AWS_*` son solo server-side y se leen en `api/send-task-summary.ts`.
+### Ejecutar en desarrollo
 
-## Firebase
+Con Vite (solo frontend):
 
-1. En Firebase Console, crear un proyecto.
-2. Agregar una app Web.
-3. Copiar la configuracion de la app Web a `.env` usando las claves `VITE_FIREBASE_*`.
-4. Activar Authentication con Email/Password. Google es opcional, pero la UI ya lo soporta si activas el provider.
-5. Crear Cloud Firestore.
-6. Publicar las reglas de `firestore.rules`.
-
-Modelo elegido:
-
-```text
-users/{userId}/tasks/{taskId}
+```bash
+npm run dev
 ```
 
-Se eligio esta estructura porque el path contiene el `userId`, las reglas son faciles de auditar y cada query queda naturalmente acotada al usuario autenticado.
+Con Vercel Dev (frontend + function `/api`):
 
-## AWS SES
+```bash
+npx vercel dev
+```
 
-1. En AWS Console, abrir SES.
-2. Elegir region y guardarla como `AWS_REGION`.
-3. Verificar el email remitente o dominio.
-4. Guardar ese remitente en `AWS_SES_FROM_EMAIL`.
-5. Crear credenciales IAM con minimo privilegio para `ses:SendEmail`.
-6. Guardar `AWS_ACCESS_KEY_ID` y `AWS_SECRET_ACCESS_KEY` solo en `.env` local o variables de Vercel.
+Si el puerto 3000 esta ocupado:
 
-Si SES esta en sandbox, tambien debes verificar el email destinatario antes de enviar.
+```bash
+npx vercel dev --listen 3200
+```
 
-## Vercel
+---
 
-1. Subir el repositorio a GitHub.
-2. Importarlo en Vercel.
-3. Configurar todas las variables de entorno.
-4. Deploy.
-5. Probar `/login`, `/register`, `/tasks` y `/api/send-task-summary`.
+## Scripts utiles
 
-`vercel.json` aplica un rewrite SPA general para cualquier ruta de React Router (incluye rutas con trailing slash como `/login/`), excluyendo `/api` y archivos estaticos.
+```bash
+npm run typecheck
+npm run test
+npm run build
+npm run preview
+npm run audit
+```
+
+---
 
 ## Testing
 
-Los tests cubren:
+Este proyecto usa Vitest + React Testing Library y cubre logica de dominio, componentes, hooks y endpoint serverless.
 
-- Validaciones y filtros de tareas.
-- Estados y callbacks de `TaskForm`.
-- Estados vacios, toggle y delete en `TaskList`.
-- Mapper de errores de Firebase.
-- Servicio de email con `fetch` mockeado para exito, 400 y error de red.
-- AuthProvider (onAuthStateChanged y acciones principales).
-- Rutas protegidas/publicas y fallback de Not Found.
-- Hook `useTasks` con mocks de Firestore (loading, success, error y rollback optimista).
-- API `/api/send-task-summary` (405, 400, 500, 502 y exito).
+### Como correr los tests
 
-## Seguridad
+```bash
+npm run test
+```
 
-- `.env` y `.env.*` estan ignorados; `.env.example` si se versiona.
-- AWS SES nunca se importa desde `src`.
-- Firestore Rules impiden acceso cross-user.
-- La funcion serverless valida metodo HTTP, email, cantidad de tareas y estructura del payload.
-- Los errores tecnicos se registran en servidor y la UI muestra mensajes seguros.
+### Suites principales
 
-## Extras implementados
+- `tests/utils/taskUtils.test.ts`: validacion de filtros, ordenamiento y transformaciones de tareas.
+- `tests/utils/authErrors.test.ts`: mapeo de errores tecnicos de auth a mensajes seguros para UI.
+- `tests/components/TaskForm.test.tsx`: flujo de creacion, validaciones y callbacks del formulario.
+- `tests/components/TaskList.test.tsx`: render de lista, acciones de completar/eliminar y estados vacios.
+- `tests/hooks/useTasks.test.tsx`: carga inicial, sincronizacion, errores y rollback optimista.
+- `tests/auth/AuthProvider.test.tsx`: login/register/logout y estado de sesion.
+- `tests/routes/RouteGuards.test.tsx`: proteccion de rutas privadas/publicas.
+- `tests/services/emailService.test.ts`: contrato del cliente HTTP para envio de resumen.
+- `tests/api/sendTaskSummaryApi.test.ts`: endpoint serverless con escenarios 405/400/500/502/200.
 
-- Filtros: todas, pendientes y completadas.
-- Prioridad: baja, media y alta.
-- Fecha de vencimiento y deteccion visual de tareas vencidas.
-- Orden manual persistente con dnd-kit.
-- Orden alternativo por prioridad o vencimiento.
+### Validaciones recomendadas antes de entregar
+
+```bash
+npm run typecheck
+npm run test
+npm run build
+```
+
+Objetivo de esta secuencia:
+
+- Asegurar tipado estricto sin errores.
+- Verificar comportamiento funcional de frontend y backend mockeado.
+- Confirmar que el build de produccion compila correctamente.
+
+---
+
+## Evidencia visual (GIF + capturas)
+
+### GIF principal de funcionamiento
+
+Agregar 1 GIF mostrando el flujo completo:
+
+1. Login.
+2. Crear tarea.
+3. Cambiar estado/completar.
+4. Enviar resumen por email.
+5. Visualizar toast de exito.
+6. Abrir correo recibido.
+
+Cuando lo tengas, guardalo en el repo y reemplaza esta linea:
+
+![Demo funcional del proyecto](docs/demo-funcionamiento.gif)
+
+### Capturas recomendadas
+
+Si quieres completar rubrica visual, agrega estas imagenes en `docs/`:
+
+- `docs/01-login.png` (pantalla login)
+- `docs/02-register.png` (pantalla registro)
+- `docs/03-dashboard-tareas.png` (tablero con stats)
+- `docs/04-crear-editar.png` (crear/editar tarea)
+- `docs/05-filtros-orden.png` (filtros y orden)
+- `docs/06-toast-feedback.png` (toast exito/error)
+- `docs/07-email-recibido.png` (correo recibido en Gmail)
+- `docs/08-spam-folder.png` (correo en Spam/No deseado)
+
+---
+
+## Seguridad y consideraciones
+
+- `.env` y `.env.*` estan ignorados por git; `.env.example` si se versiona.
+- Variables AWS se usan solo server-side en `api/send-task-summary.ts`.
+- Firestore Rules evita acceso entre usuarios.
+- La function valida payload y metodo HTTP.
+- El correo de pruebas de este README es solo para contexto academico de demostracion.
+
+---
 
 ## Uso de IA
 
-Prompt utilizado: el Prompt Maestro del Proyecto Integrador M4, pidiendo actuar como senior full stack, arquitecto, reviewer de seguridad y QA.
+El proyecto fue realizado por Raul Alejandro Carmona Cuellar.
 
-La IA se uso para:
+La IA se uso como apoyo tecnico para:
 
-- Auditar el proyecto de clase antes de crear este proyecto.
-- Diseñar la estructura por capas.
-- Comparar alternativas de modelo Firestore.
-- Implementar componentes, servicios, hooks y tests.
-- Revisar seguridad de variables de entorno y serverless.
-- Documentar pasos externos y matriz de rubrica.
+- Revisar arquitectura y buenas practicas.
+- Proponer mejoras de UI/UX.
+- Auditar validaciones, seguridad y pruebas.
+- Refinar documentacion.
 
-Decisiones tomadas con criterio del estudiante:
+Las decisiones finales de implementacion y entrega fueron del estudiante.
 
-- Usar `users/{userId}/tasks/{taskId}` para facilitar reglas de seguridad.
-- Usar `Timestamp` en Firestore y mapear a strings ISO dentro del dominio React.
-- Activar drag & drop solo con filtro `Todas` y orden `Manual`, evitando conflictos con orden automatico.
-- Mockear `fetch` en tests de email en vez de llamar AWS real.
+### Ejemplos de prompts y posibles respuestas
 
-## Checklist manual final
+1) Prompt posible:
 
-- Registrar Usuario A.
-- Crear, editar, completar, filtrar, reordenar y eliminar tareas.
-- Recargar y verificar persistencia.
-- Registrar Usuario B y confirmar aislamiento de tareas.
-- Enviar resumen por email con SES configurado.
-- Cerrar sesion e intentar entrar a `/tasks` sin sesion.
-- Confirmar redireccion a `/login`.
-- Ejecutar `npm run typecheck`, `npm run test`, `npm run build`.
-- Verificar que `.env` no aparece en Git.
+```text
+Tengo una SPA React con Firebase. Como separo capas para que auth, tareas y servicios queden mantenibles?
+```
 
-## URL de produccion
+Posible respuesta de IA:
 
-Pendiente: agregar URL publica de Vercel despues del deploy.
+```text
+Separa por features y responsabilidades: features/auth, features/tasks, hooks para orquestacion de estado, services para acceso a Firebase/API, y types/utils compartidos. Usa rutas protegidas y provider de auth en el nivel superior.
+```
+
+2) Prompt posible:
+
+```text
+Quiero guardar tareas por usuario en Firestore y evitar que un usuario vea las de otro. Que modelo y reglas recomiendas?
+```
+
+Posible respuesta de IA:
+
+```text
+Usa users/{userId}/tasks/{taskId}. En reglas, permite lectura/escritura solo cuando request.auth.uid == userId. Este modelo simplifica queries por usuario y reduce riesgo de acceso cruzado.
+```
+
+3) Prompt posible:
+
+```text
+Ayudame a implementar un endpoint en Vercel para enviar resumen de tareas con AWS SES, validando payload y errores.
+```
+
+Posible respuesta de IA:
+
+```text
+Crea /api/send-task-summary, valida metodo POST, email y lista de tareas, arma cuerpo texto+HTML, envia con SESClient y devuelve errores controlados (400/405/500/502) sin exponer datos sensibles.
+```
+
+4) Prompt posible:
+
+```text
+Quiero mejorar UX: el mensaje de exito/error de enviar resumen no quiero verlo inline, sino como toast.
+```
+
+Posible respuesta de IA:
+
+```text
+Implementa un componente ToastMessage reutilizable con variantes success/error/info, autocierre por timeout, cierre manual y aria-live para accesibilidad.
+```
+
+5) Prompt posible:
+
+```text
+Que pruebas minimas debo tener para demostrar calidad en este proyecto?
+```
+
+Posible respuesta de IA:
+
+```text
+Incluye pruebas de utilidades, componentes clave, hook principal, guards de rutas, servicio HTTP y endpoint API. Agrega typecheck y build en checklist final para validar calidad tecnica.
+```
+
+6) Prompt posible:
+
+```text
+Necesito que el README quede listo para rubrica: estructura, flujo, pruebas, deploy y evidencia visual.
+```
+
+Posible respuesta de IA:
+
+```text
+Ordena enlaces arriba, explica flujo funcional end-to-end, documenta setup/env/scripts/tests, agrega notas de SES y spam, y reserva seccion de GIF/capturas con nombres de archivo consistentes.
+```
