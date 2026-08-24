@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AppShell } from '../components/layout/AppShell'
 import { Button } from '../components/ui/Button'
-import { InlineMessage } from '../components/feedback/InlineMessage'
+import { ToastMessage } from '../components/feedback/ToastMessage'
 import { useAuth } from '../features/auth/useAuth'
 import { TaskControls } from '../features/tasks/components/TaskControls'
 import { TaskForm } from '../features/tasks/components/TaskForm'
@@ -39,6 +39,21 @@ export function TasksPage() {
   const isCreatePending = isActionPending && pendingTarget === 'create'
   const isEmailPending = emailStatus === 'loading'
   const canReorder = filter === 'all' && sort === 'manual'
+
+  useEffect(() => {
+    if (emailMessage === null) {
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setEmailMessage(null)
+      setEmailStatus('idle')
+    }, 4200)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [emailMessage])
 
   function handleSelectToggle(taskId: string): void {
     setSelectedTaskIds((current) => {
@@ -180,10 +195,6 @@ export function TasksPage() {
               </div>
             </div>
 
-            {emailMessage ? (
-              <InlineMessage tone={emailStatus === 'success' ? 'success' : 'error'}>{emailMessage}</InlineMessage>
-            ) : null}
-
             <TaskControls filter={filter} onFilterChange={setFilter} onSortChange={setSort} sort={sort} />
 
             {selectedTaskIds.size > 0 ? (
@@ -266,6 +277,18 @@ export function TasksPage() {
               </Button>
             </div>
           </div>
+        ) : null}
+
+        {emailMessage ? (
+          <ToastMessage
+            onClose={() => {
+              setEmailMessage(null)
+              setEmailStatus('idle')
+            }}
+            tone={emailStatus === 'success' ? 'success' : 'error'}
+          >
+            {emailMessage}
+          </ToastMessage>
         ) : null}
       </main>
     </AppShell>
