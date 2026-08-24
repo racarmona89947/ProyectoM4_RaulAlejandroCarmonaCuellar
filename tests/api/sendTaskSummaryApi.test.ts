@@ -1,5 +1,5 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import handler from '../../api/send-task-summary'
+import { handleRequest } from '../../api/send-task-summary'
 
 const sesMocks = vi.hoisted(() => ({
   SendEmailCommand: vi.fn(),
@@ -60,7 +60,7 @@ afterAll(() => {
 
 describe('api/send-task-summary', () => {
   it('rechaza metodo distinto a POST', async () => {
-    const response = await handler(new Request('http://localhost/api/send-task-summary', { method: 'GET' }))
+    const response = await handleRequest(new Request('http://localhost/api/send-task-summary', { method: 'GET' }))
 
     const body = (await response.json()) as { ok: boolean; error: string }
 
@@ -75,7 +75,7 @@ describe('api/send-task-summary', () => {
   it('valida payload invalido', async () => {
     setAwsEnv()
 
-    const response = await handler(
+    const response = await handleRequest(
       new Request('http://localhost/api/send-task-summary', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -92,7 +92,7 @@ describe('api/send-task-summary', () => {
   it('devuelve 500 cuando faltan variables de entorno', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
-    const response = await handler(
+    const response = await handleRequest(
       new Request('http://localhost/api/send-task-summary', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -116,7 +116,7 @@ describe('api/send-task-summary', () => {
     sesMocks.send.mockRejectedValueOnce(new Error('SES failed'))
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
-    const response = await handler(
+    const response = await handleRequest(
       new Request('http://localhost/api/send-task-summary', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -138,7 +138,7 @@ describe('api/send-task-summary', () => {
   it('envia resumen correctamente cuando SES responde ok', async () => {
     setAwsEnv()
 
-    const response = await handler(
+    const response = await handleRequest(
       new Request('http://localhost/api/send-task-summary', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

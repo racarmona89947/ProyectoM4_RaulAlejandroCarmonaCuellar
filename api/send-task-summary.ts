@@ -1,4 +1,5 @@
 import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses'
+import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { ApiErrorResponse, ApiSuccessResponse, SendTaskSummaryPayload } from '../src/types/email'
 import { isValidEmail, isTaskPriority } from '../src/utils/validators'
 
@@ -273,7 +274,7 @@ function buildHtmlSummary(payload: SendTaskSummaryPayload): string {
 </html>`
 }
 
-async function handleRequest(request: Request): Promise<Response> {
+export async function handleRequest(request: Request): Promise<Response> {
   if (request.method !== 'POST') {
     return sendError(405, 'Metodo no permitido.', {
       Allow: 'POST',
@@ -334,4 +335,34 @@ async function handleRequest(request: Request): Promise<Response> {
   }
 }
 
-export default handleRequest
+type VercelRequest = IncomingMessage & { body?: unknown }
+
+function toWebRequest(request: VercelRequest): Request {
+  const headers = new Headers()
+
+  Object.entries(request.headers).forEach(([key, value]) => {
+    if (typeof value === 'string') {
+      headers.set(key, value)
+    } else if (Array.isArray(value)) {
+      headers.set(key, value.join(', '))
+    }
+  })
+
+  const body = request.method === 'GET' || request.method === 'HEAD' ? undefined : JSON.stringify(request.body ?? null)
+  const protocol = request.headers['x-forwarded-proto'] ?? 'http'
+  const host = request.headers.host ?? 'localhost'
+
+  return new Request(`${protocol}://${host}${request.url ?? '/'}`, {
+    body,
+    headers,
+    method: request.method,
+  })
+}
+
+export default async function handler(request: VercelRequest, response: ServerResponse): Promise<void> {
+  const webResponse = await handleRequest(toWebRequest(request))
+
+  response.statusCode = webResponse.status
+  webResponse.headers.forEach((value, key) => response.setHeader(key, value))
+  response.end(await webResponse.text())
+}
