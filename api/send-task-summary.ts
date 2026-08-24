@@ -334,6 +334,4 @@ async function handleRequest(request: Request): Promise<Response> {
   }
 }
 
-export default {
-  fetch: handleRequest,
-}
+export default handleRequest

@@ -5,9 +5,9 @@ Autor: Raul Alejandro Carmona Cuellar
 
 > SPA responsive para gestion de tareas con autenticacion, CRUD en tiempo real con Firebase, y envio de resumen por email usando Vercel Functions + AWS SES.
 
-URL en produccion: pendiente de agregar tras deploy final en Vercel.
+URL en produccion: https://proyecto-m4-raul-alejandro-carmona-cuellar.vercel.app/
 
-Repositorio: pendiente de agregar URL del repo en GitHub.
+Repositorio: https://github.com/racarmona89947/ProyectoM4_RaulAlejandroCarmonaCuellar
 
 API usada (auth + database): https://firebase.google.com/
 
