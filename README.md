@@ -64,7 +64,7 @@ Nota importante sobre entregabilidad:
 Se dejo un correo de Gmail de pruebas para evaluaciones funcionales:
 
 - Usuario: proyectoshenrypruebas@gmail.com
-- Contrasena: ProyectosHenry2026*
+- La contrasena se entrega por un canal privado y no se publica en el repositorio.
 
 Uso recomendado:
 
@@ -231,7 +231,7 @@ Flujo esperado del GIF:
 5. Visualizar toast de exito.
 6. Abrir correo recibido.
 
-Pendiente de reemplazar cuando se exporte el GIF final:
+Pendiente documental: reemplazar esta referencia cuando se exporte el GIF final:
 
 ![Demo funcional del proyecto](docs/demo-funcionamiento.gif)
 
