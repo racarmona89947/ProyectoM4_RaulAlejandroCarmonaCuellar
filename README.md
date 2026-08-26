@@ -218,6 +218,20 @@ Objetivo de esta secuencia:
 
 ---
 
+## Uso critico y responsable de IA
+
+La IA se utilizo como apoyo durante el desarrollo, no como sustituto de la comprension del codigo ni de la validacion tecnica. El trabajo se realizo con este proceso:
+
+- Se solicitaron pasos concretos y ejemplos pequenos para resolver problemas puntuales de React, TypeScript, Firebase y Vercel.
+- Las propuestas se compararon con la documentacion oficial de Firebase, AWS SES, Vercel, React Router y Vitest antes de incorporarlas.
+- Se revisaron manualmente los cambios para conservar la separacion entre UI, hooks, servicios y tipos, y para evitar exponer credenciales.
+- Se escribieron y ejecutaron tests para validar autenticacion, guards, CRUD, errores de Firestore, validacion del endpoint y fallos de red.
+- Las decisiones finales, como filtrar las tareas bajo `users/{userId}/tasks` y validar el payload en la Function, se justificaron por seguridad y aislamiento de datos.
+
+La responsabilidad de revisar, adaptar y probar cada resultado corresponde al autor. La IA no tuvo acceso a secretos de produccion y no se utilizaron credenciales reales en el codigo, los tests ni el repositorio.
+
+---
+
 ## Evidencia visual (GIF + capturas)
 
 ### GIF principal de funcionamiento

@@ -16,7 +16,7 @@ export function RegisterPage() {
 
     try {
       await register(credentials.email, credentials.password)
-      navigate('/tasks', { replace: true })
+      navigate('/login', { replace: true })
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'No se pudo crear la cuenta.')
     } finally {

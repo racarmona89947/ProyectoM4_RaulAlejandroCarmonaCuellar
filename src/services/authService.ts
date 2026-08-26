@@ -35,7 +35,9 @@ export function subscribeToAuthChanges(observer: AuthObserver): Unsubscribe {
 export async function registerWithEmail(email: string, password: string): Promise<AppUser> {
   await ensureLocalPersistence()
   const credential = await createUserWithEmailAndPassword(auth, email, password)
-  return mapFirebaseUser(credential.user)
+  const user = mapFirebaseUser(credential.user)
+  await signOut(auth)
+  return user
 }
 
 export async function loginWithEmail(email: string, password: string): Promise<AppUser> {
