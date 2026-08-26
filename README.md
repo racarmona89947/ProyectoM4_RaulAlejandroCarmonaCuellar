@@ -59,14 +59,16 @@ Nota importante sobre entregabilidad:
 
 ---
 
-## Correo de prueba para rubrica
+## Credenciales y pruebas de email
 
-Se dejo un correo de Gmail de pruebas para evaluaciones funcionales:
+Para realizar las pruebas funcionales, incluyendo el envio y la recepcion del resumen por email, se pueden usar estas credenciales:
 
 - Usuario: proyectoshenrypruebas@gmail.com
 - contrasena: ProyectosHenry2026*
 
-Uso recomendado:
+Estas credenciales permiten probar el flujo completo de autenticacion, creacion de tareas y envio del resumen. El envio de emails tiene una limitacion propia de Amazon SES: la cuenta se encuentra en un entorno de prueba y solo puede enviar a direcciones autorizadas o verificadas en SES. Por eso, el resumen debe enviarse al correo de la cuenta de prueba o a un destinatario previamente registrado en la configuracion de SES.
+
+Recomendaciones:
 
 - Solo para pruebas del proyecto y verificacion de flujo de autenticacion/email.
 - Revisar bandeja Spam/No deseado despues de enviar resumen.
@@ -232,22 +234,19 @@ La responsabilidad de revisar, adaptar y probar cada resultado corresponde al au
 
 ---
 
-## Evidencia visual (GIF + capturas)
+## Evidencia visual (videos + capturas)
 
-### GIF principal de funcionamiento
+### Videos de demostracion
 
-Flujo esperado del GIF:
+#### 1) Inicio normal y flujo completo
 
-1. Login.
-2. Crear tarea.
-3. Cambiar estado/completar.
-4. Enviar resumen por email.
-5. Visualizar toast de exito.
-6. Abrir correo recibido.
+Este video muestra el flujo principal completo: inicio de sesion, creacion de tarea, cambio de estado, envio del resumen, toast de exito y apertura del correo recibido.
 
-Pendiente documental: reemplazar esta referencia cuando se exporte el GIF final:
+[Ver video de inicio normal y flujo completo](src/assets/video%20con%20inicio%20normal.mp4)
 
-![Demo funcional del proyecto](docs/demo-funcionamiento.gif)
+#### 2) Inicio de sesion con Google
+
+[Ver video de inicio de sesion con Google](src/assets/video%20inicio%20con%20google.mp4)
 
 ### Capturas del proyecto
 
