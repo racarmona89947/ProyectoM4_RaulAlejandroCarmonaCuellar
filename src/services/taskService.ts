@@ -119,8 +119,10 @@ export function subscribeToUserTasks(
   )
 }
 
-export async function createTaskForUser(userId: string, draft: TaskDraft): Promise<void> {
+export async function createTaskForUser(userId: string, draft: TaskDraft): Promise<Task> {
   assertValidTaskDraft(draft)
+
+  const now = new Date().toISOString()
 
   const payload: TaskWriteModel = {
     userId,
@@ -134,7 +136,20 @@ export async function createTaskForUser(userId: string, draft: TaskDraft): Promi
     updatedAt: serverTimestamp(),
   }
 
-  await addDoc(tasksCollectionRef(userId), payload)
+  const documentReference = await addDoc(tasksCollectionRef(userId), payload)
+
+  return {
+    id: documentReference.id,
+    userId,
+    title: payload.title,
+    description: payload.description,
+    completed: payload.completed,
+    priority: payload.priority,
+    dueDate: payload.dueDate,
+    order: payload.order,
+    createdAt: now,
+    updatedAt: now,
+  }
 }
 
 export async function updateTaskForUser(

@@ -125,6 +125,31 @@ describe('useTasks', () => {
     })
   })
 
+  it('agrega la tarea creada a la lista sin esperar una recarga', async () => {
+    taskServiceMocks.createTaskForUser.mockResolvedValueOnce({
+      ...baseTask,
+      id: 'task-2',
+      title: validDraft.title,
+      description: validDraft.description,
+      priority: validDraft.priority,
+      dueDate: validDraft.dueDate,
+      order: 2,
+    })
+
+    const { result } = renderHook(() => useTasks('user-1'))
+
+    act(() => {
+      onNext?.([])
+    })
+
+    await act(async () => {
+      await result.current.createTask(validDraft)
+    })
+
+    expect(result.current.tasks).toHaveLength(1)
+    expect(result.current.tasks[0]?.title).toBe('Nueva tarea')
+  })
+
   it('expone error de mutacion y conserva mensaje de fallo', async () => {
     taskServiceMocks.createTaskForUser.mockRejectedValueOnce(new Error('fallo al crear'))
 

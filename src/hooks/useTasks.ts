@@ -81,7 +81,21 @@ export function useTasks(userId: string | null): UseTasksResult {
   )
 
   const createTask = useCallback(
-    (draft: TaskDraft) => runMutation('create', (ownerId) => createTaskForUser(ownerId, draft)),
+    async (draft: TaskDraft) => {
+      let createdTask: Task | undefined
+
+      await runMutation('create', async (ownerId) => {
+        createdTask = await createTaskForUser(ownerId, draft)
+      })
+
+      if (createdTask !== undefined) {
+        setTasks((currentTasks) =>
+          currentTasks.some((task) => task.id === createdTask?.id)
+            ? currentTasks
+            : [...currentTasks, createdTask!],
+        )
+      }
+    },
     [runMutation],
   )
 
